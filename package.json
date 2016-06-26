@@ -9,7 +9,8 @@
   "dependencies": {
     "socket.io": "latest",
     "express": "latest",
-    "ejs": "latest"
+    "ejs": "latest",
+    "randomcolor": "latest"
   },
   "author": "David Mai <dmai9600@yahoo.com> (https://suisha.github.io)",
   "license": "MIT"

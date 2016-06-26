@@ -47,9 +47,9 @@ io.on('connection', function (socket) {
 setInterval(function () {
   game = game.getNextState()
 
-  for (var k in game.died) {
-    socketMap[k].emit('lose')
+  for (var i = 0; i < game.died.length; i++) {
+    socketMap[game.died[i].name].emit('lose')
   }
 
   io.sockets.emit('newState', game)
-}, 20)
+}, 200)

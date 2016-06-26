@@ -1,39 +1,43 @@
 var drawState = function (state) {
-  // draw the game state onto the canvas
-  var canvas = document.getElementById('canvas')
-  var ctx = canvas.getContext('2d')
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  requestAnimationFrame(function () {
+    // draw the game state onto the canvas
+    var canvas = document.getElementById('canvas')
+    var ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  for (var y = 0; y < state.board.length; y++) {
-    var row = state.board[y]
+    for (var y = 0; y < state.board.length; y++) {
+      var row = state.board[y]
 
-    for (var x = 0; x < row.length; x++) {
-      var centerX = x * 10 + 5
-      var centerY = y * 10 + 5
+      for (var x = 0; x < row.length; x++) {
+        var centerX = x * 10 + 5
+        var centerY = y * 10 + 5
 
-      if (row[x].snake) {
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, 5, 0, 360, false)
-        ctx.fillStyle = 'green'
-        ctx.fill()
-      } else if (row[x].powerup) {
-        console.log('powerup found')
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, 5, 0, 360, false)
-        ctx.fillStyle = 'yellow'
-        ctx.fill()
-      } else {
-        ctx.beginPath()
-        ctx.rect(centerX, centerY, 10, 10)
-        ctx.fillStyle ='beige';
-        ctx.fill()
+        if (row[x]) {
+          if (row[x].pieceType === 'snake') {
+            ctx.beginPath()
+            ctx.rect(centerX - 5, centerY - 5, 10, 10)
+            ctx.fillStyle = row[x].color
+            ctx.fill()
+          } else if (row[x].pieceType === 'powerup') {
+            ctx.beginPath()
+            ctx.arc(centerX, centerY, 5, 0, 360, false)
+            ctx.fillStyle = 'orange'
+            ctx.fill()
+          }
+        } else {
+          ctx.beginPath()
+          ctx.rect(centerX - 5, centerY - 5, 10, 10)
+          ctx.fillStyle ='lightgreen';
+          ctx.fill()
+        }
       }
     }
-  }
+  })
 }
 
 var socket = io.connect('http://localhost:8080')
 
+console.log('foo');
 $(document).keydown(function (e) {
   console.log('keypress')
   switch (e.keyCode) {

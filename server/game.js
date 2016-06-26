@@ -1,17 +1,14 @@
 var Snake = require('./snake')
+var PowerUpPiece = require('./pieces').powerup
 
 var Game = function () {
   this.players = {}
   this.board = []
-  this.died = {}
-  this.powerupCount = 0
+  this.died = []
+  this.powerups = {}
 
   for (var i = 0; i < 40; i++) {
     this.board.push([])
-
-    for (var ii = 0; ii < 40; ii++) {
-      this.board[i].push({})
-    }
   }
 }
 
@@ -33,15 +30,15 @@ Game.prototype.setDirection = function (name, direction) {
 // clear a previously placed snake because it's just fuckin DEAD
 Game.prototype.clearSnake = function (snake) {
   delete this.players[snake.name]
-  this.died[snake.name] = snake
+  this.died.push(snake)
 
   _that = this
   snake.body.forEach(function (v, i) {
     if (v.x > 0 && v.y > 0 && v.x < 40 && v.y < 40) {
-      var snake = _that.board[v.y][v.x].snake
+      var snake = _that.board[v.y][v.x]
       if (snake) {
         if (snake.name)
-        delete _that.board[v.y][v.x].snake
+        _that.board[v.y][v.x] = null
       }
     }
   })
@@ -60,17 +57,37 @@ Game.prototype._checkBoundaries = function (bodyPiece) {
   return true
 }
 
-Game.prototype.clearBoard = function () {
+Game.prototype.clearSnakes = function () {
   for (var i = 0; i < 40; i++) {
     for (var ii = 0; ii < 40; ii++) {
-      this.board[i][ii].snake = null
+      if (this.board[i][ii] && this.board[i][ii].pieceType === 'snake') {
+        this.board[i][ii] = null
+      }
+    }
+  }
+}
+
+Game.prototype.addPowerup = function () {
+  console.log(this.powerups)
+  if (Object.keys(this.powerups).length === 0) {
+    var powerupX = Math.floor(Math.random() * 40)
+    var powerupY = Math.floor(Math.random() * 40)
+
+    var powerup = new PowerUpPiece(powerupX, powerupY)
+    if (this.powerups[powerup.id]) {
+      this.addPowerup()
+    } else {
+      this.powerups[powerup.id] = powerup
+      this.board[powerupY][powerupX] = powerup
     }
   }
 }
 
 Game.prototype.getNextState = function () {
-  this.died = {}
-  this.clearBoard()
+  this.died = []
+  this.clearSnakes()
+
+  this.addPowerup()
   for (var name in this.players) {
     var snake = this.players[name]
     snake.move()
@@ -84,50 +101,43 @@ Game.prototype.getNextState = function () {
 
       var boardPosition = this.board[bodyPiece.y][bodyPiece.x]
 
-      // enemy snake detected
-      if (boardPosition.snake) {
-        var enemySnake = boardPosition.snake
+      if (boardPosition) {
+        // enemy snake detected
+        if (boardPosition.pieceType === 'snake') {
+          // we're placing a head
+          if (i === 0) {
+            // if the head of the current player ran into
+            // another player, then he's dead
+            this.clearSnake(snake)
 
-        // we're placing a head
-        if (i === 0) {
-          // if the head of the current player ran into
-          // another player, then he's dead
-          this.clearSnake(snake)
+            // if the thing he ran into was another head, that
+            // player is also dead
+            if (boardPosition.name !== snake.name && boardPosition.isHead) {
+              this.clearSnake(boardPosition)
+            }
 
-          // if the thing he ran into was another head, that
-          // player is also dead
-          if (boardPosition.name && enemySnake.name !== snake.name) {
-            this.clearSnake(enemySnake)
-          }
-
-          break
-        } else {
-          // it's a head (as expected)
-          if (boardPosition.snake.name) {
-            this.clearSnake(enemySnake)
+            break
+          // we're placing a body
           } else {
-            throw new Error('Collision between two non-head' +
-                            'body pieces at '  + enemySnake.x + ',' + enemySnake.y)
+            // body colliding with head
+            if (boardPosition.isHead) {
+              this.clearSnake(this.players[boardPosition.name])
+            } else {
+              throw new Error('Collision between two non-head' +
+                              'body pieces at ' + boardPosition.x +
+                                ',' + boardPosition.y)
+            }
           }
+        // found a powerup, eat it
+        } else if (boardPosition.pieceType === 'powerup') {
+          snake.grow()
+          this.board[boardPosition.y][boardPosition.x] = bodyPiece
+          delete this.powerups[boardPosition.x + 'x' + boardPosition.y + 'y']
+        // empty space, just move
         }
       } else {
-        boardPosition.snake = bodyPiece
+        this.board[bodyPiece.y][bodyPiece.x] = bodyPiece
       }
-
-      if (boardPosition.powerup && bodyPiece.isHead) {
-        snake.add()
-        boardPosition.powerup = false
-        this.powerupCount--
-      }
-
-    }
-
-    if (this.powerupCount === 0) {
-      var powerupX = Math.floor(Math.random() * 40)
-      var powerupY = Math.floor(Math.random() * 40)
-
-      this.board[powerupY][powerupY].powerup = true
-      this.powerupCount++
     }
   }
 
