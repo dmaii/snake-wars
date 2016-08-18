@@ -52,4 +52,4 @@ setInterval(function () {
   }
 
   io.sockets.emit('newState', game)
-}, 200)
+}, 100)

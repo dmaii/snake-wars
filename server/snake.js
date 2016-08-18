@@ -4,11 +4,18 @@ var randomColor = require('randomcolor')
 var Snake = function (name) {
   this.name = name
   // starting length of snakes is 5
-  var startingY = Math.floor(Math.random() * 40)
-  var startingX = Math.floor(Math.random() * 40)
+  var startingY = Math.floor(Math.random() * 10)
+  if (Math.random() < 0.5) {
+    startingY = startingY + 30
+  }
+
+  var startingX = Math.floor(Math.random() * 10)
+  if (Math.random() < 0.5) {
+    startingX = startingX + 30
+  }
 
   this.color = randomColor({
-    luminosity: 'dark',
+    luminosity: 'light',
     hue: 'random'
   })
 
@@ -16,11 +23,13 @@ var Snake = function (name) {
   this.head = this.body[0]
 
   // unless you're at the north border, go north
-  if (this.body[0].y > 0) {
+  if (this.body[0].y > 20) {
     this.direction = 'UP'
   } else {
     this.direction = 'DOWN'
   }
+
+  this.spawning = true
 }
 
 Snake.prototype.grow = function () {

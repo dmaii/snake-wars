@@ -1,0 +1,37 @@
+body {
+  background-color: black;
+  min-width: 750px;
+}
+
+canvas {
+  background-color: black;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 600px;
+  border: 1px solid white;
+}
+
+@font-face {
+  font-family: PressStart2P;
+  src: url('PressStart2P.ttf');
+}
+
+h1 {
+  font-family: PressStart2P;
+  color: greenyellow;
+  text-align: center;
+  font-size: 40px;
+  padding-top: 10px;
+}
+
+#prompt {
+  color: white;
+  font-family: PressStart2P;
+  font-size: 20px;
+  position: relative;
+  top: 30%;
+  left: 32%;
+}

@@ -1,8 +1,13 @@
+var imageObj = new Image(100, 100);
+imageObj.src = 'orange.png'
+
 var drawState = function (state) {
   requestAnimationFrame(function () {
     // draw the game state onto the canvas
     var canvas = document.getElementById('canvas')
     var ctx = canvas.getContext('2d')
+
+    ctx.imageSmoothingEnabled = false
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     for (var y = 0; y < state.board.length; y++) {
@@ -13,7 +18,7 @@ var drawState = function (state) {
         var centerY = y * 10 + 5
 
         if (row[x]) {
-          if (row[x].pieceType === 'snake') {
+          if (row[x].pieceType === 'snake' && row[x].) {
             ctx.beginPath()
             ctx.rect(centerX - 5, centerY - 5, 10, 10)
             ctx.fillStyle = row[x].color
@@ -27,7 +32,7 @@ var drawState = function (state) {
         } else {
           ctx.beginPath()
           ctx.rect(centerX - 5, centerY - 5, 10, 10)
-          ctx.fillStyle ='lightgreen';
+          ctx.fillStyle ='black';
           ctx.fill()
         }
       }
@@ -40,6 +45,7 @@ var socket = io.connect('http://localhost:8080')
 console.log('foo');
 $(document).keydown(function (e) {
   console.log('keypress')
+  e.preventDefault()
   switch (e.keyCode) {
     //left
   case 37:
@@ -59,6 +65,7 @@ $(document).keydown(function (e) {
 
 // get port
 socket.on('lose', function () {
-  alert('you lost')
+  console.log('you lost')
 })
+
 socket.on('newState', drawState)
